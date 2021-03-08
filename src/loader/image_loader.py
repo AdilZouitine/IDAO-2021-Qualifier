@@ -1,10 +1,9 @@
-from glob import glob
-from typing import Dict, List, Tuple, NoReturn, Optional, Callable
+from typing import Callable, Dict, List, NoReturn, Optional, Tuple
 
 import torch
-from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 from PIL import Image
+from torch.utils.data import Dataset
 
 DICT_CLASS: Dict[str, str] = {"ER": 0, "NR": 1}
 
