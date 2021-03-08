@@ -1,1 +1,4 @@
 fire
+torch
+torchvision
+torchaudio

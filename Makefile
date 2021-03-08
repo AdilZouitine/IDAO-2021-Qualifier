@@ -1,5 +1,5 @@
 #  Usefull command
-PROJECT_NAME = project
+PROJECT_NAME = idao
 
 setup-env:
 	conda create -n ${PROJECT_NAME} python=3.8 -y

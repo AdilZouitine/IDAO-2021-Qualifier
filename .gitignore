@@ -130,3 +130,5 @@ src/sandbox/*.ipynb
 # boring IDE
 .vscode/
 
+# data file 
+*.png
