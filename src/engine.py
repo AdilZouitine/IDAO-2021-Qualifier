@@ -1,6 +1,7 @@
 import math
 from typing import Dict, Optional, Callable, NoReturn
 
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -104,3 +105,24 @@ def train(
             )
         if scheduler is not None:
             scheduler.step()
+
+
+def inference(
+    model: nn.Module, loader: DataLoader, device: torch.device = torch.device("cuda")
+):
+    model.eval()
+    dict_pred = {
+        "id": [],
+        "classification_predictions": [],
+        "regression_predictions": [],
+    }
+    for image, image_name in loader:
+        image = image.to(device)
+
+        predicted_class, predicted_angle = model(image)
+        predicted_class = predicted_class.cpu().numpy()
+        predicted_angle = predicted_angle.cpu().numpy()
+        dict_pred["id"].append(image_name)
+        dict_pred["classification_predictions"].append(predicted_class)
+        dict_pred["regression_predictions"].append(predicted_angle)
+    return pd.DataFrame.from_dict(dict_pred)

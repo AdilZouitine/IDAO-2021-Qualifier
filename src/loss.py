@@ -23,7 +23,7 @@ class IdaoLoss(nn.Module):
             w_regression (float, optional): [description]. Defaults to 1.
         """
         self.regression_loss = nn.L1Loss()
-        self.classification_loss = nn.BCEWithLogitsLoss()
+        self.classification_loss = nn.BCELoss()
         self.w_classification = w_classification
         self.w_regression = w_regression
 
@@ -62,7 +62,6 @@ def idao_metric(
     Returns:
         float: [description]
     """
-    predicted_class = F.sigmoid(predicted_class)
     predicted_class = predicted_class.cpu().numpy()
     true_class = true_class.cpu().numpy()
     predicted_angle = predicted_angle.cpu().numpy()
