@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn import model_selection
 
 
-def group_k_fold(list_files: List[str]) -> Tuple[List[str], List[str]]:
+def group_k_fold(list_files: List[str], n_splits: int) -> Tuple[List[str], List[str]]:
     """Yield a tuple of lists. 
     The first list contains paths of the training set. 
     The second list contains paths of the validation set.
@@ -23,7 +23,7 @@ def group_k_fold(list_files: List[str]) -> Tuple[List[str], List[str]]:
 
     data = pd.DataFrame(data, columns=["group", "path"])
 
-    kfold = model_selection.GroupKFold(n_splits=2)
+    kfold = model_selection.GroupKFold(n_splits=n_splits)
     kfold.get_n_splits(data, groups=data["group"])
     for fit, val in kfold.split(data, groups=data["group"].copy()):
         yield data.loc[fit]["path"].to_list(), data.loc[val]["path"].to_list()
