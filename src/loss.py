@@ -1,9 +1,9 @@
-from typing import NoReturn
+from typing import List, NoReturn
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.metric import mean_absolute_error, roc_auc_score
+from sklearn.metrics import mean_absolute_error, roc_auc_score
 
 
 class IdaoLoss(nn.Module):
@@ -22,6 +22,7 @@ class IdaoLoss(nn.Module):
             w_classification (float, optional): [description]. Defaults to 1.
             w_regression (float, optional): [description]. Defaults to 1.
         """
+        super().__init__()
         self.regression_loss = nn.L1Loss()
         self.classification_loss = nn.BCELoss()
         self.w_classification = w_classification
@@ -46,10 +47,10 @@ class IdaoLoss(nn.Module):
 
 
 def idao_metric(
-    predicted_class: torch.Tensor,
-    true_class: torch.Tensor,
-    predicted_angle: torch.Tensor,
-    true_angle: torch.Tensor,
+    predicted_class: List[torch.Tensor],
+    true_class: List[torch.Tensor],
+    predicted_angle: List[torch.Tensor],
+    true_angle: List[torch.Tensor],
 ) -> float:
     """[summary].
 
@@ -62,10 +63,23 @@ def idao_metric(
     Returns:
         float: [description]
     """
-    predicted_class = predicted_class.cpu().numpy()
-    true_class = true_class.cpu().numpy()
-    predicted_angle = predicted_angle.cpu().numpy()
-    true_angle = true_angle.cpu().numpy()
-    classif = roc_auc_score(true_class, predicted_class)
+
+    def __merge(list_tensor: List[torch.Tensor]) -> torch.Tensor:
+        list_tensor = [tensor.view(-1) for tensor in list_tensor]
+        return torch.cat(list_tensor)
+
+    predicted_class = __merge(predicted_class)
+    true_class = __merge(true_class)
+    predicted_angle = __merge(predicted_angle)
+    true_angle = __merge(true_angle)
+
+    predicted_class = predicted_class.numpy()
+    true_class = true_class.numpy()
+    predicted_angle = predicted_angle.numpy()
+    true_angle = true_angle.numpy()
+    classif = roc_auc_score(
+        true_class,
+        predicted_class,
+    )
     regression = mean_absolute_error(true_angle, predicted_angle)
-    return (classif - regression) * 100
+    return float((classif - regression) * 1000), classif, regression

@@ -2,3 +2,6 @@ fire
 torch
 torchvision
 torchaudio
+pandas
+sklearn
+numpy

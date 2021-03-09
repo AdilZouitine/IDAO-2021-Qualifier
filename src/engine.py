@@ -2,6 +2,7 @@ import math
 from typing import Dict, Optional, Callable, NoReturn
 
 import pandas as pd
+from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -60,15 +61,20 @@ def train(
             Defaults to torch.device("cuda").
     """
     for epoch in range(1, num_epoch + 1):
+        print(f"EPOCH {epoch}")
+        print("*" * 50)
         for phase in ["train", "validation"]:
             running_loss = 0.0
-            running_score = 0
+            list_target_class = []
+            list_predicted_class = []
+            list_target_angle = []
+            list_predicted_angle = []
 
             if phase == "train":
                 model.train()
             else:
                 model.eval()
-            for image, particule_class, particule_angle in dict_loader[phase]:
+            for image, particule_class, particule_angle in tqdm(dict_loader[phase]):
                 image = image.to(device)
                 particule_class = particule_class.to(device)
                 particule_angle = particule_angle.to(device)
@@ -83,24 +89,25 @@ def train(
                         true_angle=particule_angle,
                     )
 
-                    score = metric(
-                        predicted_class=predicted_class,
-                        true_class=particule_class,
-                        predicted_angle=predicted_angle,
-                        true_angle=particule_angle,
-                    )
-
+                    list_target_class.append(particule_class.detach().cpu())
+                    list_predicted_class.append(predicted_class.detach().cpu())
+                    list_target_angle.append(particule_angle.detach().cpu())
+                    list_predicted_angle.append(predicted_angle.detach().cpu())
                     if phase == "train":
                         loss.backward()
                         optimizer.step()
                 running_loss += loss.item() * image.size(0)
-                running_score += score * image.size(0)
 
-            epoch_loss = running_loss / dict_loader[phase].dataset
-            epoch_score = running_score / dict_loader[phase].dataset
+            epoch_loss = running_loss / len(dict_loader[phase].dataset)
+            epoch_score, epoch_auc, epoch_mae = metric(
+                predicted_class=list_predicted_class,
+                true_class=list_target_class,
+                predicted_angle=list_predicted_angle,
+                true_angle=list_target_angle,
+            )
             print(
-                "{} Loss: {:.4f} Metric: {:.4f}".format(
-                    phase, epoch_loss, epoch_score
+                "{} Loss: {:.4f} Metric: {:.4f} -- Auc: {:.4f} -- Mae: {:.4f}".format(
+                    phase, epoch_loss, epoch_score, epoch_auc, epoch_mae
                 )  # noqa: E501
             )
         if scheduler is not None:

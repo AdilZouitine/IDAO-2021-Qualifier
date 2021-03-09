@@ -23,11 +23,15 @@ class IdaoDataset(Dataset):
 
     def __getitem__(self, index: int) -> Tuple[torch.Tensor, int, float]:
         image_path = self.list_path[index]
-        image = Image.open(image_path)
+        image = Image.open(image_path).convert("RGB")
         tensor_image = self.transform(image)
         particule_class = self.get_particule_class(path=image_path)
         particule_angle = self.get_particule_angle(path=image_path)
-        return tensor_image, particule_class, particule_angle
+        return (
+            tensor_image,
+            torch.tensor(particule_class, dtype=torch.float32).unsqueeze(dim=-1),
+            torch.tensor(particule_angle).unsqueeze(dim=-1),
+        )
 
     @classmethod
     def get_particule_class(cls, path: str) -> str:
@@ -49,7 +53,7 @@ class IdaoDataset(Dataset):
 class IdaoInferenceDataset(IdaoDataset):
     def __getitem__(self, index: int) -> Tuple[torch.Tensor, str]:
         image_path = self.list_path[index]
-        image = Image.open(image_path)
+        image = Image.open(image_path).convert("RGB")
         tensor_image = self.transform(image)
         image_name = self.get_image_name(path=image_path)
         return tensor_image, image_name
