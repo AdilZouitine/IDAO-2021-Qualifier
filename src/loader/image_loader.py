@@ -26,11 +26,13 @@ class IdaoDataset(Dataset):
         image = Image.open(image_path).convert("RGB")
         tensor_image = self.transform(image)
         particule_class = self.get_particule_class(path=image_path)
-        particule_angle = self.get_particule_angle(path=image_path)
+        # particule_angle = self.get_particule_angle(path=image_path)
+        particule_energy = self.get_particule_energy(path=image_path)
         return (
             tensor_image,
             torch.tensor(particule_class, dtype=torch.float32).unsqueeze(dim=-1),
-            torch.tensor(particule_angle).unsqueeze(dim=-1),
+            # torch.tensor(particule_angle).unsqueeze(dim=-1),
+            torch.tensor(particule_energy).unsqueeze(dim=-1),
         )
 
     @classmethod
@@ -48,6 +50,16 @@ class IdaoDataset(Dataset):
         # -0.0128632215783
         particule_angle = float(name_file.split("__")[0])
         return particule_angle
+
+    @classmethod
+    def get_particule_energy(cls, path: str) -> int:
+        # data/track_1/idao_dataset/train/ER/-0.0128632215783__CYGNO_60_40_ER_3_keV_930V_30cm_IDAO_iso_crop_hist_pic_run5_ev234;1.png
+        # data/track_1/idao_dataset/train/ER/-0.0128632215783__CYGNO_60_40_ER_3_
+        split_energy = path.split("keV_")[0]
+        # 3
+        particule_energy = split_energy.split("_")[-2]
+
+        return int(particule_energy)
 
 
 class IdaoInferenceDataset(IdaoDataset):

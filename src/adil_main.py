@@ -7,12 +7,14 @@ import torch.nn as nn
 import torch.optim as optim
 import torchvision.models as models
 from torch.utils.data import DataLoader
+import torchvision.transforms as transforms
 
 from engine import inference, train
 from loader.image_loader import IdaoDataset, IdaoInferenceDataset
 from loss import IdaoLoss, idao_metric
 from model.backbone_multihead import TwoHeadModel
 from utils.group_k_fold import group_k_fold
+
 
 train_path: List[str] = glob("../data/track_1/idao_dataset/train/*/*.png")
 
@@ -25,11 +27,11 @@ for index, (fold_train_path, fold_val_path) in enumerate(fold_generator):
     val_dataset = IdaoDataset(list_path=fold_val_path)
 
     train_dataloader = DataLoader(
-        dataset=train_dataset, batch_size=32, shuffle=True, num_workers=8
+        dataset=train_dataset, batch_size=50, shuffle=True, num_workers=8
     )
 
     val_dataloader = DataLoader(
-        dataset=val_dataset, batch_size=32, shuffle=False, num_workers=8
+        dataset=val_dataset, batch_size=50, shuffle=False, num_workers=8
     )
 
     resnet18 = models.resnet18(pretrained=True)
