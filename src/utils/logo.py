@@ -25,9 +25,9 @@ def logo(list_files: List[str]) -> Tuple[List[str], List[str]]:
     groups = ["10ER", "1NR", "20NR", "30ER", "3ER", "6NR"]
     groups_val = ["10NR", "1ER", "20ER", "30NR", "3NR", "6ER"]
 
-    yield yield data[data["group"].isin(groups)]["path"].to_list(), data[
-            data["group"].isin(groups_val)
-        ]["path"].to_list()
+    yield data[data["group"].isin(groups)]["path"].to_list(), data[
+        data["group"].isin(groups_val)
+    ]["path"].to_list()
 
     for validation_group in groups:
 
