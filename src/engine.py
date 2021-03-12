@@ -102,8 +102,8 @@ def train(
             epoch_score, epoch_auc, epoch_mae = metric(
                 predicted_class=list_predicted_class,
                 true_class=list_target_class,
-                predicted_angle=list_predicted_angle,
-                true_angle=list_target_angle,
+                predicted_kev=list_predicted_angle,
+                true_kev=list_target_angle,
             )
             print(
                 "{} Loss: {:.4f} Metric: {:.4f} -- Auc: {:.4f} -- Mae: {:.4f}".format(

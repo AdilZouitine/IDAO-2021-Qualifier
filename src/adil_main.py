@@ -1,5 +1,6 @@
 from glob import glob
 from typing import List
+from functools import partial
 
 import fire
 import torch
@@ -12,13 +13,13 @@ import torchvision.transforms as transforms
 from engine import inference, train
 from loader.image_loader import IdaoDataset, IdaoInferenceDataset
 from loss import IdaoLoss, idao_metric
-from model.backbone_multihead import TwoHeadModel
-from utils.group_k_fold import group_k_fold
+from model.backbone_multihead import TwoHeadModel, IndependantTwoHeadModel
+from utils.logo import logo
 
 
 train_path: List[str] = glob("../data/track_1/idao_dataset/train/*/*.png")
 
-fold_generator = group_k_fold(list_files=train_path, n_splits=2)
+fold_generator = logo(list_files=train_path)
 
 device = torch.device("cuda")
 
@@ -37,19 +38,20 @@ for index, (fold_train_path, fold_val_path) in enumerate(fold_generator):
     resnet18 = models.resnet18(pretrained=True)
     backbone = nn.Sequential(nn.Sequential(*list(resnet18.children())[:-2]))
     model = TwoHeadModel(backbone_model=backbone, embedding_size=512 * 7 * 7)
+    # model = IndependantTwoHeadModel(backbone_model=backbone, embedding_size=512 * 7 * 7)
     model.to(device)
     optimizer = optim.Adam(params=model.parameters(), lr=5e-5)
     criterion = IdaoLoss(w_classification=1, w_regression=1)
-    metric = idao_metric  # Callable
+    metric = partial(idao_metric, do_round_kev=True)  # Callable
     scheduler = None
 
     dict_loader = {"train": train_dataloader, "validation": val_dataloader}
-    num_epoch = 10
+    num_epoch = 3
 
     train(
         model=model,
         optimizer=optimizer,
-        num_epoch=10,
+        num_epoch=num_epoch,
         dict_loader=dict_loader,
         criterion=criterion,
         metric=metric,
