@@ -67,13 +67,17 @@ class IdaoInferenceDataset(IdaoDataset):
         image = Image.open(image_path).convert("RGB")
         tensor_image = self.transform(image)
         image_name = self.get_image_name(path=image_path)
-        return tensor_image, image_name
+        image_leaderboard = self.get_image_leaderboard(path=image_path)
+        return tensor_image, image_name, image_leaderboard
 
     @classmethod
     def get_image_name(cls, path: str) -> str:
-        # /track_1/idao_dataset/private_test/0a0b46086a0a870eacfdd03622bfc3c79705773f.png
+        path = re.sub(r"\\", "/", path)  # for windows user
         image_name_and_extension = path.split("/")[-1]
-        # 0a0b46086a0a870eacfdd03622bfc3c79705773f.png
         image_name = image_name_and_extension.split(".")[0]
-        # 0a0b46086a0a870eacfdd03622bfc3c79705773f
         return image_name
+
+    @classmethod
+    def get_image_leaderboard(cls, path: str) -> str:
+        image_leaderboard = re.findall(r"(private|public)", path)[0]
+        return image_leaderboard
