@@ -1,5 +1,5 @@
 import collections
-from typing import Dict, List, NoReturn
+from typing import Dict, List, NoReturn, Optional
 
 import numpy as np
 import torch
@@ -97,9 +97,9 @@ def idao_metric(
 def round_kev(
     predicted_kev: np.ndarray,
     predicted_class: np.ndarray,
+    targets: Optional[Dict[int, List[int]]] = None,
     true_class: np.ndarray = np.array([]),
     true_kev: np.ndarray = np.array([]),
-    targets: Dict[int, List[int]] = collections.defaultdict(list),
 ):
     """
     Find the nearest neighbor between the predicted class and the potential KeV.
@@ -138,7 +138,10 @@ def round_kev(
     array([30, 10, 10])
     
     """
-    if not targets:
+    if targets is None:
+
+        targets = collections.defaultdict(list)
+
         if true_class.size > 0:
             for c, k in zip(true_class, true_kev):
                 c = c.item()
@@ -149,11 +152,10 @@ def round_kev(
             raise ValueError(
                 "You must pass true_class and true_kev, when validating your model and targets while predicting on test."
             )
-
+    return targets
     rounded_kev = []
 
     for p_kev, p_c in zip(predicted_kev, np.rint(predicted_class)):
         rounded_kev.append(min(targets[p_c], key=lambda y: abs(y - p_kev)))
-
     return np.array(rounded_kev)
 
