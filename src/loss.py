@@ -152,7 +152,7 @@ def round_kev(
             raise ValueError(
                 "You must pass true_class and true_kev, when validating your model and targets while predicting on test."
             )
-    return targets
+
     rounded_kev = []
 
     for p_kev, p_c in zip(predicted_kev, np.rint(predicted_class)):
