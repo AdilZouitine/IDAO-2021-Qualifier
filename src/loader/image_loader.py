@@ -39,7 +39,7 @@ class IdaoDataset(Dataset):
     def get_particule_class(cls, path: str) -> str:
         # data/track_1/idao_dataset/train/ER/-0.0128632215783__CYGNO_60_40_ER_3_keV_930V_30cm_IDAO_iso_crop_hist_pic_run5_ev234;1.png
         # ER
-        class_name = path.split("/")[-2]
+        class_name = re.search(r"(ER|NR)", path).group(0)
         return DICT_CLASS[class_name]
 
     @classmethod
