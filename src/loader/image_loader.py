@@ -4,6 +4,7 @@ import torch
 import torchvision.transforms as transforms
 from PIL import Image
 from torch.utils.data import Dataset
+import re
 
 DICT_CLASS: Dict[str, str] = {"ER": 0, "NR": 1}
 
@@ -42,23 +43,21 @@ class IdaoDataset(Dataset):
         class_name = re.search(r"(ER|NR)", path).group(0)
         return DICT_CLASS[class_name]
 
-    @classmethod
-    def get_particule_angle(cls, path: str) -> float:
-        # data/track_1/idao_dataset/train/ER/-0.0128632215783__CYGNO_60_40_ER_3_keV_930V_30cm_IDAO_iso_crop_hist_pic_run5_ev234;1.png
-        # -0.0128632215783__CYGNO_60_40_ER_3_keV_930V_30cm_IDAO_iso_crop_hist_pic_run5_ev234;1.png
-        name_file = path.split("/")[-1]
-        # -0.0128632215783
-        particule_angle = float(name_file.split("__")[0])
-        return particule_angle
+    # @classmethod
+    # def get_particule_angle(cls, path: str) -> float:
+    #     # data/track_1/idao_dataset/train/ER/-0.0128632215783__CYGNO_60_40_ER_3_keV_930V_30cm_IDAO_iso_crop_hist_pic_run5_ev234;1.png
+    #     # -0.0128632215783__CYGNO_60_40_ER_3_keV_930V_30cm_IDAO_iso_crop_hist_pic_run5_ev234;1.png
+    #     name_file = path.split("/")[-1]
+    #     # -0.0128632215783
+    #     particule_angle = float(name_file.split("__")[0])
+    #     return particule_angle
 
     @classmethod
     def get_particule_energy(cls, path: str) -> int:
         # data/track_1/idao_dataset/train/ER/-0.0128632215783__CYGNO_60_40_ER_3_keV_930V_30cm_IDAO_iso_crop_hist_pic_run5_ev234;1.png
         # data/track_1/idao_dataset/train/ER/-0.0128632215783__CYGNO_60_40_ER_3_
-        split_energy = path.split("keV_")[0]
-        # 3
-        particule_energy = split_energy.split("_")[-2]
-
+        particule_kev = re.findall(r"\d*_keV", path)[0]
+        particule_energy = re.findall(r"\d*", particule_kev)[0]
         return int(particule_energy)
 
 
