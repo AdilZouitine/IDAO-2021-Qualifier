@@ -3,6 +3,7 @@ from typing import List
 from functools import partial
 
 import fire
+from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -12,6 +13,7 @@ import torchvision.transforms as transforms
 
 from engine import inference, train
 from loader.image_loader import IdaoDataset, IdaoInferenceDataset
+from loader.feature_loader import IdaoFeaturesDataset, IdaoFeaturesInferenceDataset
 from loss import IdaoLoss, idao_metric
 from model.backbone_multihead import TwoHeadModel, IndependantTwoHeadModel
 from submission_maker import SubmissionMaker
@@ -89,18 +91,21 @@ def main(mode="train", save_train=None, trained_model_path=None):
         model.load_state_dict(torch.load(trained_model_path))
         model.eval()
 
-        test_dataset = IdaoInferenceDataset(list_path=test_path, transform=transform)
+        # test_dataset = IdaoInferenceDataset(list_path=test_path, transform=transform)
+        test_dataset = IdaoFeaturesInferenceDataset(list_path=test_path)
+        print(test_dataset[0])
+        print(test_dataset[1])
 
-        sub_maker = SubmissionMaker(
-            eval_model=model,
-            submission_template="data/idao_dataset/track1_predictions_example.csv",
-            test_dataset=test_dataset,
-            device="cuda:0",
-        )
-        sub_maker.infer(save_path="result/dummy_pred.csv", rounding=True)
+        # sub_maker = SubmissionMaker(
+        #     eval_model=model,
+        #     submission_template="data/idao_dataset/track1_predictions_example.csv",
+        #     test_dataset=test_dataset,
+        #     device="cuda:0",
+        # )
+        # sub_maker.infer(save_path="result/dummy_pred.csv", rounding=True)
 
 
 if __name__ == "__main__":
 
     save_train = f"models/test.pth"
-    main(mode="test", trained_model_path=f"models/dummy.pth")
+    main(mode="train", save_train=f"models/test.pth")
