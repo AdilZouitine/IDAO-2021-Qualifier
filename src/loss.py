@@ -143,17 +143,18 @@ def update_class(
     ... )
     
     """
-    if true_class is None and true_kev is None:
-        targets = {
-            1: {10: 2511, 30: 2511, 3: 2511, 1: 251, 20: 251, 6: 251},  # NR
-            0: {1: 2511, 20: 2511, 6: 2511, 10: 251, 30: 251, 3: 251},  # ER
-        }
-    else:
+    if true_class is not None and true_kev is not None::
         targets = {1: collections.defaultdict(int), 0: collections.defaultdict(int)}
         for c, kev in zip(true_class, true_kev):
             targets[c][kev] += 1
 
-    n_class_0, n_class_1 = sum(targets[0].values()), sum(targets[1].values())
+    if targets is None and true_kev is None:
+        n_class_0, n_class_1 = (
+            predicted_class.shape[1] + 10 // 2,
+            predicted_class.shape[1] + 10 // 2,
+        )
+    else:
+        n_class_0, n_class_1 = sum(targets[0].values()), sum(targets[1].values())
     n_predicted_1 = sum(np.rint(predicted_class))
     n_predicted_0 = len(predicted_class) - n_predicted_1
 
