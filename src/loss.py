@@ -143,7 +143,7 @@ def update_class(
     ... )
     
     """
-    if true_class is not None and true_kev is not None::
+    if true_class is not None and true_kev is not None:
         targets = {1: collections.defaultdict(int), 0: collections.defaultdict(int)}
         for c, kev in zip(true_class, true_kev):
             targets[c][kev] += 1
