@@ -1,13 +1,13 @@
+from typing import NoReturn, Optional
+
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
 import torch
 import torch.nn as nn
-from typing import Optional, NoReturn
+from tqdm import tqdm
 
-
-from loader.image_loader import IdaoInferenceDataset, DICT_CLASS
-from loss import round_kev
+from loader.image_loader import DICT_CLASS, IdaoInferenceDataset
+from loss import round_kev, update_class
 
 
 class SubmissionMaker:
@@ -32,7 +32,12 @@ class SubmissionMaker:
         self.test_dataset = test_dataset
         self.device = device
 
-    def infer(self, save_path: str, rounding: Optional[bool] = True) -> NoReturn:
+    def infer(
+        self,
+        save_path: str,
+        rounding: Optional[bool] = True,
+        update_class: Optional[bool] = False,
+    ) -> NoReturn:
         """[Infer a model and create a submission file]
 
         Args:
@@ -67,6 +72,11 @@ class SubmissionMaker:
                     predicted_class=predicted_class,
                     targets=targets,
                 )
+
+                predicted_class = update_class(
+                    predicted_class=predicted_class, predicted_kev=predicted_kev,
+                )
+
             predicted_class = np.rint(predicted_class)
 
             self.submission.loc[
