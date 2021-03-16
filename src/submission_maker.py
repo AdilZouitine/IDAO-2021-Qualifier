@@ -36,7 +36,7 @@ class SubmissionMaker:
         self,
         save_path: str,
         rounding: Optional[bool] = True,
-        update_class: Optional[bool] = False,
+        do_update_class: Optional[bool] = False,
     ) -> NoReturn:
         """[Infer a model and create a submission file]
 
@@ -54,6 +54,11 @@ class SubmissionMaker:
             predicted_class = predicted_class.squeeze(0).detach().cpu().numpy()
             predicted_kev = predicted_kev.squeeze(0).detach().cpu().numpy()
 
+            if do_update_class:
+                predicted_class = update_class(
+                    predicted_class=predicted_class, predicted_kev=predicted_kev,
+                )
+
             if rounding:
                 if image_leaderboard == "public":
                     targets = {
@@ -66,10 +71,6 @@ class SubmissionMaker:
                         DICT_CLASS["ER"]: [1, 6, 20],
                         DICT_CLASS["NR"]: [3, 10, 30],
                     }
-
-                predicted_class = update_class(
-                    predicted_class=predicted_class, predicted_kev=predicted_kev,
-                )
 
                 predicted_kev = round_kev(
                     predicted_kev=predicted_kev,
