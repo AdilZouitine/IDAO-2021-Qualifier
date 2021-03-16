@@ -1,7 +1,7 @@
 import re
 from typing import Dict
 
-DICT_CLASS: Dict[str, str] = {"ER": 0, "NR": 1}
+DICT_CLASS: Dict[str, str] = {"ER": 1, "NR": 0}
 
 
 def get_particule_class(path: str) -> str:
