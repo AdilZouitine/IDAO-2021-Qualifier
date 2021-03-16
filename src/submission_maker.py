@@ -67,14 +67,14 @@ class SubmissionMaker:
                         DICT_CLASS["NR"]: [3, 10, 30],
                     }
 
+                predicted_class = update_class(
+                    predicted_class=predicted_class, predicted_kev=predicted_kev,
+                )
+
                 predicted_kev = round_kev(
                     predicted_kev=predicted_kev,
                     predicted_class=predicted_class,
                     targets=targets,
-                )
-
-                predicted_class = update_class(
-                    predicted_class=predicted_class, predicted_kev=predicted_kev,
                 )
 
             predicted_class = np.rint(predicted_class)
